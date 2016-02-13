@@ -36,7 +36,8 @@ Last parameter is a boolean, indicating weather we rotaing area right (true = ro
 
 **Outline** create outline of a given color and width of anything (text or image) of specified color. Last parameter is an object:
 ````
-{ offset_x: <horizontal width of outline>, 
+{ 
+  offset_x: <horizontal width of outline>, 
   offset_y: <vertical width of outline>, 
   orig_color: <color of image/text on the screen to create outline around>, 
   offset_color: <color of the outline> 
@@ -86,7 +87,7 @@ setInterval(function () {
 ````
 You can see this in action [here](http://codecorner.galanter.net/pebble/rockyjs/effectsjs/effectsjs.html)
 
-**Advanced usage**
+####Advanced usage
 If you assign refrence to boundary object to a variable prior to passing it to <code>addEffect()</code> method as parameter - you can manipulate the boundary making your effect mobile. For example this code will move effect area horizontally:
 ````javascript
 var bounds = {x:4, y:0, w:140, h:42};
