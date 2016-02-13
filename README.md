@@ -6,7 +6,7 @@
 ````javascript
 var effectHub = Effects.getEffectHub(rocky, 144, 168);
 ````
-Creates an effect hub - main objects that manages effects. Parameters are Rocky object and canvas size
+Creates an effect hub - main object that manages effects. Parameters are Rocky object and canvas size
 ####Adding effects
 ````javascript
 effectHub.addEffect(<effect type>, bounds, [param]);
