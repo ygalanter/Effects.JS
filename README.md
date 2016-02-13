@@ -35,11 +35,11 @@ effectHub.addEffect(Effects.EFFECT_ROTATE_90_DEGREES, { x: 95, y: 83, w: 48, h: 
 Last parameter is a boolean, indicating weather we rotaing area right (true = rotating right, false = rotating left)
 
 **Outline** create outline of a given color and width of anything (text or image) of specified color. Last parameter is an object:
-````javascript
+````
 { offset_x: <horizontal width of outline>, 
   offset_y: <vertical width of outline>, 
   orig_color: <color of image/text on the screen to create outline around>, 
-  offset_color: <color of the outlin> 
+  offset_color: <color of the outline> 
 }
 ````
 Example usadge:
