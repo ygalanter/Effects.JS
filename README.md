@@ -1,6 +1,6 @@
 # Effects.JS: Visual Effect Library for Rocky.JS
 
-*This library requires modified version of Rocky.JS as described [here](http://codecorner.galanter.net/2016/02/11/fire-on-high-or-framebuffer-in-rocky-js/">)*
+*This library requires modified version of Rocky.JS with exposed framebuffer as described [here](http://codecorner.galanter.net/2016/02/11/fire-on-high-or-framebuffer-in-rocky-js/">)*
 
 ####Initialization
 ````javascript
