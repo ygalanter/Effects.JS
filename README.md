@@ -93,8 +93,8 @@ var bounds = {x:4, y:0, w:140, h:42};
 effectHub.addEffect(Effects.EFFECT_VERTICAL_MIRROR, bounds});
 
 setInterval(function () {
-    bound.x +=10;
-    if (bounds.x >= 144) bouds = 0
+    bounds.x +=10;
+    if (bounds.x >= 144) bounds = 0
     rocky.mark_dirty();
 }, 1000);
 ````
