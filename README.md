@@ -85,3 +85,16 @@ setInterval(function () {
 }, 1000);
 ````
 You can see this in action [here](http://codecorner.galanter.net/pebble/rockyjs/effectsjs/effectsjs.html)
+
+**Advanced usage**
+If you assign refrence to boundary object to a variable prior to passing it to <code>addEffect()</code> method as parameter - you can manipulate the boundary making your effect mobile. For example this code will move effect area horizontally:
+````javascript
+var bounds = {x:4, y:0, w:140, h:42};
+effectHub.addEffect(Effects.EFFECT_VERTICAL_MIRROR, bounds});
+
+setInterval(function () {
+    bound.x +=10;
+    if (bounds.x >= 144) bouds = 0
+    rocky.mark_dirty();
+}, 1000);
+````
