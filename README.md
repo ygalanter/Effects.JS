@@ -33,6 +33,7 @@ effectHub.addEffect(Effects.EFFECT_INVERT, { x: 2, y: 42, w: 140, h: 42 });
 effectHub.addEffect(Effects.EFFECT_ROTATE_90_DEGREES, { x: 95, y: 83, w: 48, h: 48 }, false);
 ````
 Last parameter is a boolean, indicating weather we rotaing area right (true = rotating right, false = rotating left)
+
 **Outline** create outline of a given color and width of anything (text or image) of specified color. Last parameter is an object:
 ````javascript
 { offset_x: <horizontal width of outline>, 
@@ -47,6 +48,7 @@ effectHub.addEffect(Effects.EFFECT_OUTLINE, { x: 0, y: 42 * 3, w: 144, h: 42 },
                     { offset_x: 1, offset_y: 1, orig_color: GColorGreen, offset_color: GColorYellow });
 ````
 This will create effect of yellow outline around green areas of width (1,1).
+
 **Horizontal Mirror** will create a horizontal mirror image of selected area. Example usadge:
 ````javascript
 effectHub.addEffect(Effects.EFFECT_HORIZONTAL_MIRROR, { x: 0, y: 83, w: 144-48, h: 48 });
@@ -77,8 +79,6 @@ effectHub.addEffect(Effects.EFFECT_ROTATE_90_DEGREES, { x: 95, y: 83, w: 48, h: 
 effectHub.addEffect(Effects.EFFECT_OUTLINE, { x: 0, y: 42 * 3, w: 144, h: 42 }, 
               { offset_x: 1, offset_y: 1, orig_color: GColorGreen, offset_color: GColorYellow });
 effectHub.addEffect(Effects.EFFECT_HORIZONTAL_MIRROR, { x: 0, y: 83, w: 144-48, h: 48 });
-
-var font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
 
 setInterval(function () {
      rocky.mark_dirty();
