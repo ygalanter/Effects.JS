@@ -54,6 +54,30 @@ This will create effect of yellow outline around green areas of width (1,1).
 ````javascript
 effectHub.addEffect(Effects.EFFECT_HORIZONTAL_MIRROR, { x: 0, y: 83, w: 144-48, h: 48 });
 ````
+**Mask** allows to show a bitmap background thru image or text mask either supplied as parameter or already existing on the screen, creating effect of transparency, like for exmple in [Simple Striped](http://apps.getpebble.com/en_US/application/552b12499c306b05a000008e) watchface. Examplle usage:
+````javascript
+effectHub.addEffect(Effects.EFFECT_MASK, { x: 0, y: 0, w: 144, h: 168 }, eMask);
+````
+Here eMask is an object in following format:
+````javascript
+{
+  bitmap_mask : <GBitmap> or null, // bitmap used for mask, when masking by bitmap, null otherwise
+  text : <string>, // text used for mask, when when masking by text, null otherwise
+  font: <GFont>, // font used for text mask;
+  text_overflow: <GTextOverflowMode>, // overflow used for text mask;
+  text_align: <GTextAlignment>, // alignment used for text masks
+  mask_colors : [GColor, GColor, ...], //array of colors for the mask
+  background_color : <GColor>, // color of the background
+  bitmap_background_info: object // info about bitmap to show thru mask { bitmap_data, bitmap_w, bitmap_h}
+}  
+````
+All of the properties besides `bitmap_background_info` can be assigned directly. `bitmap_background_info` is assigned inside of callback function of call to `Effects.gbitmap_get_data()`:
+````JavaScript
+Effects.gbitmap_get_data("http://imageurl/image.png", function (bitmap_info) {
+     eMask.bitmap_background_info = bitmap_info;
+});
+````
+
 **Complete example**
 ````javascript
 var rocky = Rocky.bindCanvas(document.getElementById("pebble"));
