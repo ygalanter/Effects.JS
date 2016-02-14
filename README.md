@@ -14,9 +14,9 @@ effectHub.addEffect(<effect type>, bounds, [param]);
 &lt;effect type&gt; is one of the predefined effect types (see below), bounds is an object representing effect boundaries in format {x:x, y:y, w:w, h:h}. [param] is an optional parameter that is required for some effects.
 ####Render effects
 ````javascript
-effectHub.renderEffects();
+effectHub.renderEffects(ctx);
 ````
-This code should be placed inside of Rocky update proc, it will render all added effects in order they were added
+`ctx` is graphics context obtained from Rocky update proc, so this call should be placed inside of Rocky update proc, it will render all added effects in order they were added
 ####Available effects
 Currently following effects are available:
 
@@ -90,7 +90,7 @@ rocky.update_proc = function (ctx, bounds) {
     /////
 
     //rendering effects
-    effectHub.renderEffects();
+    effectHub.renderEffects(ctx);
 
  };
 
