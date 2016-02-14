@@ -1,11 +1,12 @@
-
+﻿
 if (typeof (Effects) === 'undefined') {
     Effects = {
         EFFECT_INVERT: 0,
         EFFECT_VERTICAL_MIRROR: 1,
         EFFECT_ROTATE_90_DEGREES: 2,
         EFFECT_OUTLINE: 3,
-        EFFECT_HORIZONTAL_MIRROR: 4
+        EFFECT_HORIZONTAL_MIRROR: 4,
+        EFFECT_MASK: 5
     };
 }
 
@@ -23,9 +24,26 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
 
         //***** begin utility functions
 
-        //gets color of pixel at given coordinates
-        var getPixel = function (x, y) {
-            return ROCKY.framebuffer[y * CANVAS_W + x];
+        //based on GColor.js converts RGB color to GColor
+        function GColorFromRGB(r,g,b) {
+            var a = 192;
+            var r = (r >> 6) << 4;
+            var g = (g >> 6) << 2;
+            var b = (b >> 6) << 0;
+            return a + r + g + b;
+        }
+
+        // gets color of pixel at given coordinates
+        // either from passed bitmap data or from actual framebuffer
+        var getPixel = function (x, y, bitmap_info) {
+            if (bitmap_info) {
+                // **** since we obtained RGBA data from Canvas .getData method - need to convert it to GColor
+                var offset = (y * bitmap_info.bitmap_w + x) * 4;
+                return GColorFromRGB(bitmap_info.bitmap_data[offset], bitmap_info.bitmap_data[offset + 1], bitmap_info.bitmap_data[offset + 2]);
+                // **** }
+            } else {
+                return ROCKY.framebuffer[y * CANVAS_W + x];
+            }
         }
 
         //sets color of pixel at given coordinates
@@ -137,6 +155,37 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
   
         }
 
+        var fn_mask_effect = function(bounds, mask, ctx) {
+            var temp_pixel;  
+           
+            //drawing background - only if real color is passed
+            if (mask.background_color && mask.background_color != GColorClear) {
+                graphics_context_set_fill_color(ctx, mask.background_color);
+                graphics_fill_rect(ctx, [bounds.x, bounds.y, bounds.w, bounds.h], 0, GCornerNone); 
+            }  
+  
+            //if text mask is used - drawing text
+            if (mask.text) {
+                graphics_context_set_text_color(ctx, mask.mask_colors[0]); // for text using only 1st color from array of mask colors
+                graphics_draw_text(ctx, mask.text, mask.font, [bounds.x, bounds.y, bounds.w, bounds.h], mask.text_overflow, mask.text_align, 0);
+            } else if (mask.bitmap_mask) { // othersise - bitmap mask is used - draw bimap
+                graphics_draw_bitmap_in_rect(ctx, mask.bitmap_mask, [bounds.x, bounds.y, bounds.w, bounds.h]);
+            }
+               
+  
+            //looping throughout layer replacing mask with bg bitmap
+            for (var y = 0; y < bounds.h; y++)
+                for (var x = 0; x < bounds.w; x++) {
+                    temp_pixel = getPixel(x + bounds.x, y + bounds.y);
+
+                    if ( mask.mask_colors.indexOf(temp_pixel) > -1) { // if array of mask colors matches current screen pixel color:
+                      setPixel(x + bounds.x, y + bounds.y, getPixel(x, y, mask.bitmap_background_info)); //copying pixel from background bitmap data to screen
+                    } 
+  
+               }
+  
+        }
+
 
         //*** End effect function
 
@@ -148,7 +197,8 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
 
 
         // loops thru array of added effects, rendering them
-        this.renderEffects = function () {
+        // ctx: Graphis contexts passed from inside Rocky update proc for those effects that need it
+        this.renderEffects = function (ctx) {
 
             effects.forEach(function (effect) {
 
@@ -168,6 +218,8 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
                     case Effects.EFFECT_HORIZONTAL_MIRROR:
                         fn_horizontal_mirror_effect(effect.bounds);
                         break;
+                    case Effects.EFFECT_MASK:
+                        fn_mask_effect(effect.bounds, effect.param, ctx);
 
 
                 }
@@ -178,4 +230,44 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
 
     return new EffectHub(rocky, canvas_w, canvas_h);
 
+}
+
+// Converts PNG data to raw binary RGBA format
+// Based on loadPNGdata function from https://web.archive.org/web/20120604141209/http://www.nihilogic.dk/labs/canvascompress/pngdata.js
+// strFileName: path to PNG source
+// fnCallback: callback function that returns data
+Effects.gbitmap_get_data = function(strFilename, fncCallback) {
+	// test for canvas and getImageData
+	var bCanvas = false;
+	var oCanvas = document.createElement("canvas");
+	if (oCanvas.getContext) {
+		var oCtx = oCanvas.getContext("2d");
+		if (oCtx.getImageData) {
+			bCanvas = true;
+		}
+	}
+	if (bCanvas) {
+		var oImg = new Image();
+		oImg.style.position = "absolute";
+		oImg.style.left = "-10000px";
+		document.body.appendChild(oImg);
+		oImg.onload = function() {
+			var iWidth = this.offsetWidth;
+			var iHeight = this.offsetHeight;
+			oCanvas.width = iWidth;
+			oCanvas.height = iHeight;
+			oCanvas.style.width = iWidth + "px";
+			oCanvas.style.height = iHeight + "px";
+			oCtx.drawImage(this,0,0);
+			var oData = oCtx.getImageData(0,0,iWidth,iHeight).data;
+			if (fncCallback) {
+			    fncCallback({ bitmap_data:oData,  bitmap_w: iWidth, bitmap_h:iHeight}); // returning bitmap_info {bitmap_data, bitmap_w, bitmap_h}
+			}
+			document.body.removeChild(oImg);
+		}
+		oImg.src = strFilename;
+		return true;
+	} else {
+		return false;
+	}
 }
