@@ -235,8 +235,9 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
 // Converts PNG data to raw binary RGBA format
 // Based on loadPNGdata function from https://web.archive.org/web/20120604141209/http://www.nihilogic.dk/labs/canvascompress/pngdata.js
 // strFileName: path to PNG source
-// fnCallback: callback function that returns data
-Effects.gbitmap_get_data = function(strFilename, fncCallback) {
+// fnCallback: callback function that returns bitmap_info
+// data: optional data to be passed back to callback function
+Effects.gbitmap_get_data = function(strFilename, fncCallback, data) {
 	// test for canvas and getImageData
 	var bCanvas = false;
 	var oCanvas = document.createElement("canvas");
@@ -261,7 +262,7 @@ Effects.gbitmap_get_data = function(strFilename, fncCallback) {
 			oCtx.drawImage(this,0,0);
 			var oData = oCtx.getImageData(0,0,iWidth,iHeight).data;
 			if (fncCallback) {
-			    fncCallback({ bitmap_data:oData,  bitmap_w: iWidth, bitmap_h:iHeight}); // returning bitmap_info {bitmap_data, bitmap_w, bitmap_h}
+			    fncCallback({ bitmap_data: oData, bitmap_w: iWidth, bitmap_h: iHeight }, data); // returning bitmap_info {bitmap_data, bitmap_w, bitmap_h}, [and optional data]
 			}
 			document.body.removeChild(oImg);
 		}
