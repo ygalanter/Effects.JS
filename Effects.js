@@ -6,7 +6,8 @@ if (typeof (Effects) === 'undefined') {
         EFFECT_ROTATE_90_DEGREES: 2,
         EFFECT_OUTLINE: 3,
         EFFECT_HORIZONTAL_MIRROR: 4,
-        EFFECT_MASK: 5
+        EFFECT_MASK: 5,
+        EFFECT_BLUR: 6
     };
 }
 
@@ -33,6 +34,17 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
             return a + r + g + b;
         }
 
+        //based on GColor.js converts GColor to RGB color
+        function GColorToRGB(color) {
+            
+            return {
+                r : (color & 48) >> 4,
+                g : (color & 12) >> 2,
+                b : (color & 3) >> 0
+            }
+        }
+
+
         // gets color of pixel at given coordinates
         // either from passed bitmap data or from actual framebuffer
         var getPixel = function (x, y, bitmap_info) {
@@ -50,11 +62,110 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
         var setPixel = function (x, y, color) {
             ROCKY.framebuffer[y * CANVAS_W + x] = color;
         }
+
+
+        // substitute for gbitmap_get_data_row_info to get row of pixels at curret Y row position
+        var framebuffer_get_data_row_info = function (y) {
+            return {
+                data: ROCKY.framebuffer.subarray(144 * y, 144 * y + 144),
+                min_x: 0,
+                max_x: 144
+            }
+        }
+
+        // memcpy implementation for JS arrays
+        function memcpy(dst, dstOffset, src, srcOffset, length) {
+
+            dst.subarray(dstOffset).set(src.subarray(srcOffset, srcOffset + length));
+            
+        }
+
+
         //***** end utility functions
 
+        
 
 
         //*** Begin effect functions
+
+        // helper function for blur effect
+        var blur_ = function(row, x_start, x_end, dest, radius){
+            var total = new Array(3);
+            var nb_points = 0;
+
+            for (var x = x_start; x < x_end; ++x) {
+                total[0] = total[1] = total[2] = 0;
+                nb_points = 0;
+                for (var ky = row - radius; ky <= row + radius; ++ky){
+                    if (ky >= 0 && ky < CANVAS_H) {
+                        var row_info = framebuffer_get_data_row_info(ky);
+                        for (kx = x - radius; kx <= x + radius; ++kx){
+                            if(row_info.min_x <= kx && kx <= row_info.max_x)
+                            {
+                                var color = GColorToRGB(row_info.data[kx]);
+                                total[0] += color.r;
+                                total[1] += color.g;
+                                total[2] += color.b;
+                                nb_points++;
+                            }
+                        }
+                    }
+                }
+                total[0] = (total[0] * 0x55) / nb_points;
+                total[1] = (total[1] * 0x55) / nb_points;
+                total[2] = (total[2] * 0x55) / nb_points;
+                dest[x-x_start] = GColorFromRGB(total[0], total[1], total[2]); 
+            }
+        }
+
+
+        //blur effect, second parameter is radious of the blur
+        var fn_blur_effect = function (bounds, radius) {
+
+            var offset_x = bounds.x;
+            var offset_y = bounds.y;
+            var width    = bounds.w;
+            var height   = bounds.h;
+  
+            var buffer = new ArrayBuffer(width * (radius + 1));
+            var buffer_array = new Uint8Array(buffer);
+
+            var row_infos = [];
+            var circular_index = 0;
+
+            var h=0;
+            for(; h<radius+1; h++){
+                row_infos[h] = framebuffer_get_data_row_info(offset_y+h);
+                row_infos[h].min_x = Math.max(row_infos[h].min_x, offset_x);
+                row_infos[h].max_x = Math.min(offset_x + width, row_infos[h].max_x);
+                blur_(offset_y+h, row_infos[h].min_x, row_infos[h].max_x, buffer_array.subarray(h*width), radius);
+            }
+
+            for (; h < height; h++) {
+
+                memcpy(row_infos[circular_index].data, row_infos[circular_index].min_x,
+                    buffer_array, circular_index * width,
+                    row_infos[circular_index].max_x - row_infos[circular_index].min_x);
+
+                row_infos[circular_index] = framebuffer_get_data_row_info(offset_y+h);
+                row_infos[circular_index].min_x = Math.max(row_infos[circular_index].min_x, offset_x);
+                row_infos[circular_index].max_x = Math.min(offset_x + width, row_infos[circular_index].max_x);
+                blur_(offset_y + h, row_infos[circular_index].min_x, row_infos[circular_index].max_x, buffer_array.subarray(circular_index * width), radius);
+                circular_index = circular_index < radius ? circular_index + 1 : 0;
+            }
+
+            h=0;
+            for(; h<radius; h++){
+                memcpy(row_infos[circular_index].data, row_infos[circular_index].min_x,
+                    buffer_array, circular_index * width,
+                    row_infos[circular_index].max_x - row_infos[circular_index].min_x);
+
+                circular_index = circular_index < radius ? circular_index + 1 : 0;
+            }
+  
+        }
+
+
 
         //invert effect
         var fn_invert_effect = function (bounds) {
@@ -220,7 +331,9 @@ Effects.getEffectHub = function (rocky, canvas_w, canvas_h) {
                         break;
                     case Effects.EFFECT_MASK:
                         fn_mask_effect(effect.bounds, effect.param, ctx);
-
+                        break;
+                    case Effects.EFFECT_BLUR:
+                        fn_blur_effect(effect.bounds, effect.param); // param = radius of blur
 
                 }
 
@@ -252,6 +365,7 @@ Effects.gbitmap_get_data = function(strFilename, fncCallback, data) {
 		oImg.style.position = "absolute";
 		oImg.style.left = "-10000px";
 		document.body.appendChild(oImg);
+		oImg.crossOrigin = "anonymous";
 		oImg.onload = function() {
 			var iWidth = this.offsetWidth;
 			var iHeight = this.offsetHeight;
