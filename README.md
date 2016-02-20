@@ -63,7 +63,7 @@ This will create effect of yellow outline around green areas of width (1,1).
 ````javascript
 effectHub.addEffect(Effects.EFFECT_HORIZONTAL_MIRROR, { x: 0, y: 83, w: 144-48, h: 48 });
 ````
-**Mask** allows to show a bitmap background thru image or text mask either supplied as parameter or already existing on the screen, creating effect of transparency, like for exmple in [Simple Striped](http://apps.getpebble.com/en_US/application/552b12499c306b05a000008e) watchface. Examplle usage:
+**Mask** allows to show a bitmap background thru image or text mask either supplied as parameter or already existing on the screen, creating effect of transparency. Examplle usage:
 ````javascript
 effectHub.addEffect(Effects.EFFECT_MASK, { x: 0, y: 0, w: 144, h: 168 }, eMask);
 ````
