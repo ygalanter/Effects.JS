@@ -86,11 +86,12 @@ Effects.gbitmap_get_data("http://imageurl/image.png", function (bitmap_info) {
      eMask.bitmap_background_info = bitmap_info;
 });
 ````
-**Blur** will at blur effect to specified area. Example usadge:
+**Blur** will add blur effect to specified area. Example usadge:
 ````javascript
 effectHub.addEffect(Effects.EFFECT_BLUR, { x: 95, y: 83, w: 48, h: 48 }, 1);
 ````
 Last parameter is radius of blur effect, the larger the number the blurrier the effect
+
 
 **Complete example**
 ````javascript
