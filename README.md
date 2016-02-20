@@ -1,6 +1,15 @@
 # Effects.JS: Visual Effect Library for Rocky.JS
 
-*This library requires modified version of Rocky.JS with exposed framebuffer as described [here](http://codecorner.galanter.net/2016/02/11/fire-on-high-or-framebuffer-in-rocky-js/">)*
+Effects.JS is a special effects library for JavaScript runtime for Pebble smartwatch [Rocky.js](https://github.com/pebble/rockyjs). Before it can be used a small modification is required to one of Rocky's component: Open <code>html-binding.js</code> and before the last line:
+`return binding;` insert line `binding.framebuffer = framebufferPixels;`
+
+<iframe src="http://codecorner.galanter.net/pebble/rockyjs/fireplacejs/fireplacejs.html" width="144" height="168" frameBorder="0" style="overflow:hidden;padding-right:5px;marging:0;float:left" scrolling="no" ></iframe>
+
+<iframe src="http://codecorner.galanter.net/pebble/rockyjs/simplestripedjs/simplestripedjs.html" width="180" height="168" frameBorder="0" style="overflow:hidden;padding-right:5px;marging:0;float:left" scrolling="no" ></iframe>
+
+<iframe src="http://codecorner.galanter.net/pebble/rockyjs/vortexjs/vortexjs.html" width="180" height="168" frameBorder="0" style="overflow:hidden;padding-right:5px;marging:0;float:left" scrolling="no" ></iframe>
+
+<iframe src="http://codecorner.galanter.net/pebble/rockyjs/brickneonjs/brickneonjs.html" width="144" height="168" frameBorder="0" style="overflow:hidden;padding-right:5px;marging:0;float:left" scrolling="no" ></iframe>
 
 ####Initialization
 ````javascript
@@ -77,6 +86,11 @@ Effects.gbitmap_get_data("http://imageurl/image.png", function (bitmap_info) {
      eMask.bitmap_background_info = bitmap_info;
 });
 ````
+**Blur** will at blur effect to specified area. Example usadge:
+````javascript
+effectHub.addEffect(Effects.EFFECT_BLUR, { x: 95, y: 83, w: 48, h: 48 }, 1);
+````
+Last parameter is radius of blur effect, the larger the number the blurrier the effect
 
 **Complete example**
 ````javascript
@@ -109,7 +123,6 @@ setInterval(function () {
      rocky.mark_dirty();
 }, 1000);
 ````
-You can see this in action [here](http://codecorner.galanter.net/pebble/rockyjs/effectsjs/effectsjs.html)
 
 ####Advanced usage
 If you assign refrence to boundary object to a variable prior to passing it to <code>addEffect()</code> method as parameter - you can manipulate the boundary making your effect mobile. For example this code will move effect area horizontally:
