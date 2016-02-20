@@ -1,5 +1,7 @@
 # Effects.JS: Visual Effect Library for Rocky.JS
 
+![](https://assets.getpebble.com/api/file/CweIYtaRVCl7D6h1yloQ/convert)    ![](https://assets.getpebble.com/api/file/mga8R5VTFWYo69A40eqP/convert)   ![](https://assets.getpebble.com/api/file/IXmCyi6KSy6uJukNcKnt/convert)   ![](https://assets.getpebble.com/api/file/aM8z7c1bR1awSys40lXQ/convert)   ![](https://assets.getpebble.com/api/file/zm0lVSNXQTWV1J1Q9IzQ/convert)
+
 Effects.JS is a special effects library for JavaScript runtime for Pebble smartwatch [Rocky.js](https://github.com/pebble/rockyjs). Before it can be used a small modification is required to one of Rocky's component: Open <code>html-binding.js</code> and before the last line:
 `return binding;` insert line `binding.framebuffer = framebufferPixels;`
 
